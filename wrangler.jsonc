@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "proofpack-kimi-arun",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-05-22",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "proofpack-kimi-db",
+      "database_id": "ae2391fe-f154-4df6-bffa-6cc76bf8725c",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": { "enabled": true }
+}

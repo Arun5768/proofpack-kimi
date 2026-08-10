@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#151712">
+  <meta name="description" content="Turn scattered proof into honest, high-impact application answers with Kimi K2.5.">
+  <meta property="og:title" content="ProofPack — proof first, words second">
+  <meta property="og:description" content="A private evidence workspace that uses Kimi K2.5 to write application answers without inventing claims.">
+  <title>ProofPack — evidence-backed application answers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+
+  <main id="auth-view" class="auth-shell" hidden>
+    <section class="auth-story">
+      <a class="brand brand-light" href="/"><span class="brand-mark">P</span><span>ProofPack</span></a>
+      <div class="story-main">
+        <p class="kicker">PROOF FIRST. WORDS SECOND.</p>
+        <h1>Your best work is scattered everywhere.</h1>
+        <p>Bring the links, numbers, projects, articles, and outcomes together. ProofPack turns them into answers you can defend.</p>
+        <div class="proof-flow" aria-label="How ProofPack works">
+          <div><span>01</span><strong>Collect proof</strong><small>Projects, events, articles, outcomes</small></div>
+          <div><span>02</span><strong>Ask the question</strong><small>Application, grant, pitch, or bio</small></div>
+          <div><span>03</span><strong>Generate safely</strong><small>Answer, sources, warnings, next proof</small></div>
+        </div>
+      </div>
+      <div class="powered"><span class="pulse"></span><span>Reasoning powered by Kimi K2.5</span></div>
+    </section>
+
+    <section class="auth-panel">
+      <a class="brand mobile-brand" href="/"><span class="brand-mark">P</span><span>ProofPack</span></a>
+      <div class="auth-card">
+        <div class="auth-tabs"><button class="auth-tab active" data-auth-tab="login">Sign in</button><button class="auth-tab" data-auth-tab="register">Create account</button></div>
+        <form id="login-form" class="auth-form">
+          <header><p class="kicker dark">PRIVATE WORKSPACE</p><h2>Welcome back</h2><p>Continue building answers from your real work.</p></header>
+          <label>Username<input name="username" autocomplete="username" minlength="3" maxlength="24" required></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required></label>
+          <button class="button primary full" type="submit"><span>Sign in</span><span>→</span></button>
+          <button class="text-button" type="button" data-show-recover>Forgot your password?</button>
+        </form>
+        <form id="register-form" class="auth-form" hidden>
+          <header><p class="kicker dark">START YOUR PROOF LIBRARY</p><h2>Create an account</h2><p>No email, social login, or card required.</p></header>
+          <label>Username<input name="username" autocomplete="username" pattern="[A-Za-z0-9_]{3,24}" required><small>3–24 letters, numbers, or underscores</small></label>
+          <label>Password<input name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required><small>At least 10 characters</small></label>
+          <label class="check-label"><input name="privacy" type="checkbox" required><span>I understand that ProofPack stores the evidence and answers I add.</span></label>
+          <button class="button primary full" type="submit"><span>Create private workspace</span><span>→</span></button>
+        </form>
+        <form id="recover-form" class="auth-form" hidden>
+          <button class="back-link" type="button" data-back-login>← Back to sign in</button>
+          <header><p class="kicker dark">ACCOUNT RECOVERY</p><h2>Reset your password</h2><p>Use the code shown when your account was created.</p></header>
+          <label>Username<input name="username" autocomplete="username" required></label>
+          <label>Recovery code<input name="recoveryCode" placeholder="PP-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" required></label>
+          <label>New password<input name="newPassword" type="password" autocomplete="new-password" minlength="10" required></label>
+          <button class="button primary full" type="submit">Reset password</button>
+        </form>
+        <div id="auth-error" class="error-box" role="alert" hidden></div>
+      </div>
+      <p class="privacy-line">Your password, session, and recovery code are never stored in readable form.</p>
+    </section>
+  </main>
+
+  <div id="app-view" class="app-shell" hidden>
+    <aside id="sidebar" class="sidebar">
+      <div class="side-head"><a class="brand" href="/"><span class="brand-mark">P</span><span>ProofPack</span></a><button id="side-close" class="icon-button mobile-only" aria-label="Close navigation">×</button></div>
+      <button id="new-workspace-button" class="button primary full"><span>New application</span><span>＋</span></button>
+      <div class="side-section-head"><span>APPLICATIONS</span><span id="workspace-count">0</span></div>
+      <nav id="workspace-list" class="workspace-list" aria-label="Application workspaces"></nav>
+      <div class="side-bottom">
+        <button class="side-link" data-show-settings><span>⚙</span><span>Account & privacy</span></button>
+        <div class="quota-card"><div><span>KIMI ANSWERS TODAY</span><strong id="quota-remaining">—</strong></div><div class="quota-track"><i id="quota-bar"></i></div><small>Daily limit: 10</small></div>
+        <button id="logout-button" class="profile-row"><span id="avatar" class="avatar">U</span><span><strong id="profile-name">user</strong><small>Sign out</small></span><span>→</span></button>
+      </div>
+    </aside>
+    <div id="side-scrim" class="side-scrim"></div>
+
+    <main class="main-area">
+      <header class="mobile-header"><button id="menu-button" class="icon-button" aria-label="Open navigation">☰</button><a class="brand" href="/"><span class="brand-mark">P</span><span>ProofPack</span></a><span id="mobile-quota">— left</span></header>
+
+      <section id="home-view" class="page-view">
+        <div class="home-hero">
+          <p class="kicker dark">YOUR PRIVATE EVIDENCE DESK</p>
+          <h1>Stop rewriting your life from memory.</h1>
+          <p>Create one workspace for each application. Add the proof once, then ask every difficult question with your real context already attached.</p>
+          <button class="button primary" data-create-workspace>Create your first application <span>→</span></button>
+        </div>
+        <div class="empty-product-grid">
+          <article><span class="feature-number">01</span><h2>Build an evidence vault</h2><p>Store projects, open-source work, articles, events, metrics, and public proof links.</p></article>
+          <article><span class="feature-number">02</span><h2>Let Kimi read the full picture</h2><p>Kimi K2.5 receives your structured evidence, not a vague one-line prompt.</p></article>
+          <article><span class="feature-number">03</span><h2>Know what is risky</h2><p>Every answer includes facts used, unsupported-claim warnings, and missing proof.</p></article>
+        </div>
+      </section>
+
+      <section id="workspace-view" class="page-view" hidden>
+        <header class="workspace-head">
+          <div><p id="workspace-target" class="kicker dark"></p><h1 id="workspace-name"></h1><p id="workspace-description" class="workspace-description"></p></div>
+          <div class="workspace-actions"><span id="kimi-status" class="status-badge"><i></i>Kimi status</span><button id="workspace-menu" class="icon-button" aria-label="Application actions">•••</button></div>
+        </header>
+
+        <div class="workspace-grid">
+          <section class="evidence-column">
+            <div class="section-title"><div><span class="section-index">01</span><h2>Evidence vault</h2></div><button id="add-evidence-button" class="button secondary">＋ Add proof</button></div>
+            <p class="section-help">Give Kimi facts it can use. A public link strengthens the evidence, but clear notes are still required.</p>
+            <div id="evidence-list" class="evidence-list"></div>
+          </section>
+
+          <section class="answer-column">
+            <div class="composer-card">
+              <div class="section-title compact"><div><span class="section-index">02</span><h2>Ask the application</h2></div><span id="evidence-ready-count" class="mini-count">0 proofs ready</span></div>
+              <form id="generate-form">
+                <label>Question<textarea name="question" rows="5" minlength="15" maxlength="1500" placeholder="When did you start using Kimi and what do you like most about Kimi?" required></textarea><small><span id="question-count">0</span>/1500</small></label>
+                <div class="composer-options"><label>Tone<select name="tone"><option value="clear">Clear and human</option><option value="energetic">Energetic</option><option value="professional">Professional</option><option value="concise">Concise</option></select></label><div class="model-chip"><span>MODEL</span><strong>Kimi K2.5</strong></div></div>
+                <div id="generate-error" class="error-box" hidden></div>
+                <button id="generate-button" class="button kimi-button full" type="submit"><span>Generate from my proof</span><span class="spark">✦</span></button>
+                <p class="composer-note">Kimi is instructed to avoid invented metrics, roles, dates, and outcomes.</p>
+              </form>
+            </div>
+
+            <div id="answer-empty" class="answer-empty"><span>✦</span><h3>Your evidence-backed answer will appear here.</h3><p>Add at least two proof items, then ask the exact question from your application.</p></div>
+            <div id="answer-loading" class="answer-loading" hidden><div class="thinking-orbit"><i></i><b>✦</b></div><p class="kicker dark">KIMI IS READING YOUR EVIDENCE</p><h3 id="thinking-title">Separating facts from claims…</h3><p id="thinking-detail">Checking what can be said confidently and what still needs proof.</p></div>
+            <div id="answer-result" class="answer-result" hidden></div>
+
+            <div class="history-section"><div class="section-title compact"><div><span class="section-index">03</span><h2>Answer history</h2></div></div><div id="generation-list" class="generation-list"></div></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="settings-view" class="page-view" hidden>
+        <button class="back-link" data-back-workspace>← Back to applications</button>
+        <div class="settings-head"><p class="kicker dark">ACCOUNT & PRIVACY</p><h1>Your work stays under your control.</h1><p>ProofPack stores only what is needed to keep your account and evidence workspaces working.</p></div>
+        <div class="settings-grid">
+          <article class="settings-card"><h2>What is stored</h2><ul><li>Hashed account and recovery credentials</li><li>Your application workspaces and evidence notes</li><li>Your saved Kimi answers and proof warnings</li></ul><p>ProofPack never asks for your Kimi account, GitHub password, or private repository access.</p></article>
+          <form id="delete-account-form" class="settings-card danger-card"><p class="kicker danger-text">DANGER ZONE</p><h2>Delete everything</h2><p>Permanently remove your account, evidence, and answer history.</p><label>Password<input name="password" type="password" autocomplete="current-password" required></label><button class="button danger-button" type="submit">Delete my account</button><div id="delete-account-error" class="error-box" hidden></div></form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="recovery-dialog" class="modal">
+    <div class="success-mark">✓</div><p class="kicker dark">SAVE THIS ONCE</p><h2>Your recovery code</h2><p>If you forget your password, this is the only way back into your account.</p>
+    <div class="code-box"><code id="recovery-code">—</code><button id="copy-recovery" class="button secondary">Copy</button></div>
+    <label class="check-label"><input id="saved-recovery" type="checkbox"><span>I saved this code somewhere private.</span></label>
+    <button id="finish-recovery" class="button primary full" disabled>Continue</button>
+  </dialog>
+
+  <dialog id="workspace-dialog" class="modal wide">
+    <button class="modal-close" data-close-workspace aria-label="Close">×</button><p class="kicker dark">NEW APPLICATION</p><h2>What are you applying for?</h2><p>One workspace keeps the relevant proof and answers together.</p>
+    <form id="workspace-form" class="dialog-form"><label>Workspace name<input name="name" placeholder="Kimi Ambassador Application" maxlength="80" required></label><label>Target organization or role<input name="target" placeholder="Kimi Ambassador Program" maxlength="120" required></label><label>Short background<textarea name="description" rows="3" maxlength="500" placeholder="What should Kimi understand about this application?"></textarea></label><div id="workspace-error" class="error-box" hidden></div><button class="button primary full" type="submit">Create application <span>→</span></button></form>
+  </dialog>
+
+  <dialog id="evidence-dialog" class="modal wide">
+    <button class="modal-close" data-close-evidence aria-label="Close">×</button><p class="kicker dark">ADD PROOF</p><h2>Give this achievement a receipt.</h2><p>Your notes explain the context. A public link lets ProofPack read what is visible.</p>
+    <form id="evidence-form" class="dialog-form">
+      <label>Evidence type<select name="type"><option value="project">Project</option><option value="open_source">Open source</option><option value="article">Article or writing</option><option value="event">Event or community</option><option value="work">Work experience</option><option value="education">Education</option><option value="other">Other</option></select></label>
+      <label>Title<input name="title" placeholder="RepoProof — Cloudflare production project" maxlength="120" required></label>
+      <label>What does this prove?<textarea name="details" rows="5" minlength="15" maxlength="2500" placeholder="I designed and deployed the complete user journey, including accounts, D1 storage, evidence audits, and account recovery." required></textarea><small>Be specific about your role and the outcome.</small></label>
+      <label>Metric or outcome <span class="optional">OPTIONAL</span><input name="metric" placeholder="600+ attendees, 150 videos, 85/100 evidence score" maxlength="120"></label>
+      <label>Public proof URL <span class="optional">OPTIONAL</span><input name="proofUrl" type="url" placeholder="https://github.com/... or https://medium.com/..."><small>GitHub is read through its public API. Other public links are read when the website permits it and always remain attached as evidence.</small></label>
+      <div id="evidence-error" class="error-box" hidden></div><button class="button primary full" type="submit">Add to evidence vault <span>＋</span></button>
+    </form>
+  </dialog>
+
+  <dialog id="workspace-actions-dialog" class="modal small-modal"><h2>Application actions</h2><button id="edit-workspace-button" class="dialog-action">Edit details <span>→</span></button><button id="delete-workspace-button" class="dialog-action danger-text">Delete application <span>⌫</span></button><button class="button secondary full" data-close-actions>Cancel</button></dialog>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
