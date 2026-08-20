@@ -1,6 +1,6 @@
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-const state = { user: null, quota: null, workspaces: [], currentId: null, workspaceData: null, currentGeneration: null, kimiConfigured: false, model: "kimi-k2.5", editingEvidenceId: null, editingWorkspace: false, thinkingTimer: null };
+const state = { user: null, quota: null, workspaces: [], currentId: null, workspaceData: null, currentGeneration: null, kimiConfigured: false, model: "moonshotai/kimi-k2.5", editingEvidenceId: null, editingWorkspace: false, thinkingTimer: null };
 
 document.addEventListener("DOMContentLoaded", boot);
 
@@ -118,14 +118,14 @@ async function openWorkspace(id) {
 
 function updateKimiStatus() {
   const el = $("#kimi-status"); el.classList.toggle("connected", state.kimiConfigured); el.classList.toggle("disconnected", !state.kimiConfigured);
-  el.lastChild.textContent = state.kimiConfigured ? ` ${state.model} connected` : " Kimi connection pending";
+  el.lastChild.textContent = state.kimiConfigured ? " Kimi K2.5 connected" : " Kimi connection pending";
 }
 
 function renderEvidence() {
   const items = state.workspaceData.evidence; $("#evidence-ready-count").textContent = `${items.length} proof${items.length === 1 ? "" : "s"} ready`;
-  if (!items.length) { $("#evidence-list").innerHTML = `<div class="empty-vault"><span>⌁</span><h3>No proof added yet</h3><p>Start with your strongest project, contribution, article, or measurable outcome.</p><button class="button secondary" data-empty-add>＋ Add first proof</button></div>`; $("[data-empty-add]").addEventListener("click", () => openEvidenceDialog()); return; }
+  if (!items.length) { $("#evidence-list").innerHTML = `<div class="empty-vault"><span>⌁</span><h3>No work added yet</h3><p>Start with your strongest project, contribution, article, event, or measurable result.</p><button class="button secondary" data-empty-add>＋ Add first item</button></div>`; $("[data-empty-add]").addEventListener("click", () => openEvidenceDialog()); return; }
   $("#evidence-list").innerHTML = items.map((item) => {
-    const read = ["public_text_read", "public_api_read"].includes(item.source_status); const label = read ? "Public source read" : item.proof_url ? "Link saved" : "Manual evidence";
+    const read = ["public_text_read", "public_api_read"].includes(item.source_status); const label = read ? "Link checked" : item.proof_url ? "Link saved" : "Your notes only";
     return `<article class="evidence-card"><div class="evidence-top"><span class="type-badge">${escapeHtml(typeLabel(item.type))}</span><span class="source-state ${read ? "read" : ""}">${label}</span></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.details)}</p>${item.metric ? `<span class="metric">${escapeHtml(item.metric)}</span>` : ""}<div class="evidence-footer">${item.proof_url ? `<a href="${escapeHtml(item.proof_url)}" target="_blank" rel="noopener">Open proof ↗</a>` : `<span></span>`}<div class="card-actions"><button class="mini-action" data-edit-evidence="${item.id}">Edit</button><button class="mini-action danger-text" data-delete-evidence="${item.id}">Delete</button></div></div></article>`;
   }).join("");
   $$('[data-edit-evidence]').forEach((button) => button.addEventListener("click", () => openEvidenceDialog(Number(button.dataset.editEvidence))));
@@ -135,8 +135,8 @@ function renderEvidence() {
 function openEvidenceDialog(id = null) {
   state.editingEvidenceId = id; const form = $("#evidence-form"); form.reset(); clearError("#evidence-error");
   if (id) { const item = state.workspaceData.evidence.find((entry) => entry.id === id); if (!item) return; Object.entries({ type: item.type, title: item.title, details: item.details, metric: item.metric, proofUrl: item.proof_url }).forEach(([name, value]) => { if (form.elements[name]) form.elements[name].value = value || ""; }); }
-  $("#evidence-dialog h2").textContent = id ? "Update this proof." : "Give this achievement a receipt.";
-  $("#evidence-dialog form button[type='submit']").innerHTML = id ? "Save evidence <span>→</span>" : "Add to evidence vault <span>＋</span>"; $("#evidence-dialog").showModal();
+  $("#evidence-dialog h2").textContent = id ? "Update this item." : "Add something you have actually done.";
+  $("#evidence-dialog form button[type='submit']").innerHTML = id ? "Save changes <span>→</span>" : "Add this work <span>＋</span>"; $("#evidence-dialog").showModal();
 }
 
 async function saveEvidence(event) {
@@ -149,13 +149,13 @@ async function saveEvidence(event) {
 }
 
 async function removeEvidence(id) {
-  const item = state.workspaceData.evidence.find((entry) => entry.id === id); if (!item || !confirm(`Delete “${item.title}” from this evidence vault?`)) return;
+  const item = state.workspaceData.evidence.find((entry) => entry.id === id); if (!item || !confirm(`Delete “${item.title}” from this application?`)) return;
   try { await api(`/api/evidence/${id}`, { method: "DELETE", body: {} }); await openWorkspace(state.currentId); toast("Evidence deleted"); } catch (error) { toast(error.message, "error"); }
 }
 
 async function generate(event) {
   event.preventDefault(); clearError("#generate-error");
-  if (!state.kimiConfigured) return showError("#generate-error", "Kimi is not connected yet. The application owner needs to add the Moonshot API key.");
+  if (!state.kimiConfigured) return showError("#generate-error", "Kimi is temporarily unavailable. Please try again later.");
   if (state.workspaceData.evidence.length < 2) return showError("#generate-error", "Add at least two evidence items first.");
   if (state.quota.remaining <= 0) return showError("#generate-error", "You have used today’s 10 Kimi answers.");
   const button = event.submitter; setBusy(button, true, "Kimi is reading…"); showThinking();
@@ -175,7 +175,7 @@ function renderAnswer(generation) {
   $("#answer-loading").hidden = true; $("#answer-empty").hidden = true; $("#answer-result").hidden = false;
   const facts = generation.factsUsed.length ? generation.factsUsed : ["Kimi did not list specific evidence references."];
   const warnings = generation.warnings.length ? generation.warnings : ["No major unsupported claims were detected."];
-  $("#answer-result").innerHTML = `<div class="answer-result-head"><div><span class="section-index">✦</span><h3>Evidence-backed answer</h3></div><div class="confidence"><span>${generation.confidence}% confidence</span><span class="confidence-track"><i style="width:${generation.confidence}%"></i></span></div></div><div class="answer-copy">${escapeHtml(generation.answer)}</div><div class="answer-toolbar"><small>Generated with ${escapeHtml(generation.model)} · Review before submitting</small><button class="button secondary" data-copy-answer>Copy answer</button></div><div class="answer-insights"><section class="insight-panel"><h4>PROOF USED</h4><div class="insight-list">${facts.map((item) => `<div class="insight-item"><span>✓</span><div>${escapeHtml(item)}</div></div>`).join("")}</div></section><section class="insight-panel"><h4>HONESTY CHECK</h4><div class="insight-list">${warnings.map((item) => `<div class="insight-item warning"><span>!</span><div>${escapeHtml(item)}</div></div>`).join("")}</div></section></div><section class="next-proof"><h4>WHAT WOULD MAKE THIS STRONGER</h4>${generation.nextProof.length ? `<ol>${generation.nextProof.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>` : `<p>No additional proof was requested.</p>`}</section>`;
+  $("#answer-result").innerHTML = `<div class="answer-result-head"><div><span class="section-index">✦</span><h3>Answer based on your work</h3></div><div class="confidence"><span>${generation.confidence}% confidence</span><span class="confidence-track"><i style="width:${generation.confidence}%"></i></span></div></div><div class="answer-copy">${escapeHtml(generation.answer)}</div><div class="answer-toolbar"><small>Written with Kimi K2.5 · Check it before submitting</small><button class="button secondary" data-copy-answer>Copy answer</button></div><div class="answer-insights"><section class="insight-panel"><h4>FACTS USED</h4><div class="insight-list">${facts.map((item) => `<div class="insight-item"><span>✓</span><div>${escapeHtml(item)}</div></div>`).join("")}</div></section><section class="insight-panel"><h4>CHECK BEFORE SUBMITTING</h4><div class="insight-list">${warnings.map((item) => `<div class="insight-item warning"><span>!</span><div>${escapeHtml(item)}</div></div>`).join("")}</div></section></div><section class="next-proof"><h4>WHAT WOULD MAKE THIS STRONGER</h4>${generation.nextProof.length ? `<ol>${generation.nextProof.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>` : `<p>No additional proof was requested.</p>`}</section>`;
   $("[data-copy-answer]").addEventListener("click", () => copyText(generation.answer, "Answer copied"));
 }
 

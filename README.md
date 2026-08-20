@@ -1,6 +1,10 @@
 # ProofPack — Kimi Evidence Workspace
 
-ProofPack turns scattered evidence into application answers that a user can defend. It is not a generic chat interface: Kimi K2.5 receives a structured evidence pack and must return the answer, facts used, unsupported-claim warnings, missing proof, and a confidence score.
+ProofPack turns scattered work into application answers that a user can defend. It is not a generic chat interface: Kimi K2.5 receives a structured evidence pack and must return the answer, facts used, unsupported-claim warnings, missing proof, and a confidence score.
+
+**Live app:** [proofpack-kimi-arun.arunchandel1780.workers.dev](https://proofpack-kimi-arun.arunchandel1780.workers.dev)
+
+The live release has been tested through the full disposable-user flow: registration, workspace creation, evidence storage, Kimi generation, character-limit enforcement, saved history, and account deletion.
 
 ## Problem
 
@@ -15,14 +19,14 @@ ProofPack gives each application a private evidence workspace. Users add their r
 3. Add projects, open-source work, articles, events, experience, metrics, and public proof links.
 4. ProofPack enriches GitHub links through its public API and safely attempts other supported public pages; blocked pages remain attached as evidence.
 5. Ask the exact application question and choose a tone.
-6. Kimi K2.5 generates an answer using the entire structured evidence pack.
+6. Choose the application character limit and let Kimi generate an answer using the complete evidence pack.
 7. Review the evidence used, honesty warnings, missing proof, and confidence score.
 8. Copy the answer or reopen it from saved history.
 9. Edit or delete evidence, applications, generations, or the entire account.
 
 ## Kimi integration
 
-The Worker calls Moonshot AI's OpenAI-compatible chat completion endpoint with `kimi-k2.5`. Source excerpts and user notes are explicitly treated as untrusted reference text. The model is instructed never to invent metrics, dates, users, roles, outcomes, technologies, or links.
+The Worker calls OpenRouter's OpenAI-compatible chat completion endpoint with `moonshotai/kimi-k2.5`. Source excerpts and user notes are explicitly treated as untrusted reference text. The model is instructed never to invent metrics, dates, users, roles, outcomes, technologies, or links, and the server enforces the selected character limit.
 
 The expected JSON response is validated before storage:
 
@@ -44,7 +48,7 @@ Kimi's API key is stored only as a Cloudflare Worker secret and is never exposed
 | --- | --- | --- |
 | Edge API | Cloudflare Workers | Authentication, authorization, source reading, Kimi requests, quotas |
 | Persistence | Cloudflare D1 | Accounts, sessions, applications, evidence, and generation history |
-| Reasoning | Kimi K2.5 via Moonshot API | Long-context evidence analysis and constrained answer generation |
+| Reasoning | Kimi K2.5 via OpenRouter | Long-context evidence analysis and constrained answer generation |
 | Frontend | HTML, CSS, JavaScript | Responsive customer workflow without a framework runtime |
 | Hosting | Cloudflare Workers Static Assets | Same-origin global delivery |
 
@@ -55,7 +59,7 @@ Kimi's API key is stored only as a Cloudflare Worker secret and is never exposed
 - `HttpOnly`, `Secure`, `SameSite=Strict` cookies.
 - Server-side ownership checks for every user record.
 - Same-origin enforcement for state-changing requests.
-- Registration, login, recovery, and generation rate limits.
+- Registration, login, recovery, per-user generation, and whole-app spending limits.
 - HTTPS-only evidence links and restricted automatic source readers to avoid arbitrary server requests.
 - Prompt-injection defense: fetched sources are data, never instructions.
 - CSP, HSTS, frame denial, referrer restrictions, and browser permission restrictions.
@@ -77,7 +81,7 @@ Create the D1 database, update its ID in `wrangler.jsonc`, apply the migration, 
 
 ```bash
 npx wrangler secret put AUTH_PEPPER
-npx wrangler secret put KIMI_API_KEY
+npx wrangler secret put OPENROUTER_API_KEY
 npx wrangler d1 migrations apply proofpack-kimi-db --remote
 npm run deploy
 ```
