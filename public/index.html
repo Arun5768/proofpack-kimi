@@ -41,6 +41,7 @@
           <label>Username<input name="username" autocomplete="username" minlength="3" maxlength="24" required></label>
           <label>Password<input name="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required></label>
           <button class="button primary full" type="submit"><span>Sign in</span><span>→</span></button>
+          <button id="demo-button" class="button secondary full" type="button"><span>Explore a finished sample</span><span>↗</span></button>
           <button class="text-button" type="button" data-show-recover>Forgot your password?</button>
         </form>
         <form id="register-form" class="auth-form" hidden>
@@ -80,6 +81,7 @@
 
     <main class="main-area">
       <header class="mobile-header"><button id="menu-button" class="icon-button" aria-label="Open navigation">☰</button><a class="brand" href="/"><span class="brand-mark">P</span><span>ProofPack</span></a><span id="mobile-quota">— left</span></header>
+      <div id="demo-banner" class="demo-banner" hidden><span><strong>Sample workspace</strong> — this is a real Kimi output using example evidence.</span><button id="demo-exit" class="button secondary">Use my own work</button></div>
 
       <section id="home-view" class="page-view">
         <div class="home-hero">

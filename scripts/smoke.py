@@ -11,6 +11,7 @@ import urllib.error
 
 
 BASE_URL = (sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8787").rstrip("/")
+SHOW_ANSWER = "--show-answer" in sys.argv[2:]
 cookies = http.cookiejar.CookieJar()
 client = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookies))
 username = f"release_{secrets.token_hex(4)}"
@@ -82,20 +83,18 @@ try:
         },
     )["generation"]
     answer_length = len(generated["answer"])
-    print(
-        json.dumps(
-            {
-                "health": health.get("ok"),
-                "configured": health.get("kimiConfigured"),
-                "model": health.get("model"),
-                "answerLength": answer_length,
-                "factsUsed": len(generated.get("factsUsed", [])),
-                "warnings": len(generated.get("warnings", [])),
-                "withinLimit": answer_length <= 600,
-            },
-            indent=2,
-        )
-    )
+    summary = {
+        "health": health.get("ok"),
+        "configured": health.get("kimiConfigured"),
+        "model": health.get("model"),
+        "answerLength": answer_length,
+        "factsUsed": len(generated.get("factsUsed", [])),
+        "warnings": len(generated.get("warnings", [])),
+        "withinLimit": answer_length <= 600,
+    }
+    if SHOW_ANSWER:
+        summary["generation"] = generated
+    print(json.dumps(summary, indent=2))
 finally:
     if registered:
         try:

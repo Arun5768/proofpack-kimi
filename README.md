@@ -6,6 +6,22 @@ ProofPack turns scattered work into application answers that a user can defend. 
 
 The live release has been tested through the full disposable-user flow: registration, workspace creation, evidence storage, Kimi generation, character-limit enforcement, saved history, and account deletion.
 
+## See the product in 30 seconds
+
+![ProofPack welcome screen with the sample workspace entry point](assets/screenshots/01-welcome.png)
+
+*A reviewer can explore the finished sample without creating an account. Real evidence and generations remain inside private user workspaces.*
+
+![ProofPack sample application workspace](assets/screenshots/02-sample-workspace.png)
+
+*Each application keeps its question, evidence, model choice, requested tone, and character limit together.*
+
+![Kimi answer with supporting facts, warning, and suggested next proof](assets/screenshots/03-evidence-backed-answer.png)
+
+*The useful output is not only the paragraph. ProofPack exposes the facts Kimi used, a claim to verify, and the next proof that would improve confidence.*
+
+Read the short build story in [CASE_STUDY.md](CASE_STUDY.md), or use the timed [90-second walkthrough script](WALKTHROUGH_SCRIPT.md).
+
 ## Problem
 
 Applicants, freelancers, founders, and community leaders repeatedly rebuild their story from memory. Their proof is spread across GitHub, event pages, Medium articles, deployed products, portfolios, and private notes. Generic writing tools create polished text but can invent or overstate details.
@@ -15,14 +31,15 @@ ProofPack gives each application a private evidence workspace. Users add their r
 ## Complete user journey
 
 1. Create an account and save a one-time recovery code.
-2. Create a workspace for a program, role, grant, pitch, or biography.
-3. Add projects, open-source work, articles, events, experience, metrics, and public proof links.
-4. ProofPack enriches GitHub links through its public API and safely attempts other supported public pages; blocked pages remain attached as evidence.
-5. Ask the exact application question and choose a tone.
-6. Choose the application character limit and let Kimi generate an answer using the complete evidence pack.
-7. Review the evidence used, honesty warnings, missing proof, and confidence score.
-8. Copy the answer or reopen it from saved history.
-9. Edit or delete evidence, applications, generations, or the entire account.
+2. Or open the read-only sample workspace to understand the complete result without registering.
+3. Create a workspace for a program, role, grant, pitch, or biography.
+4. Add projects, open-source work, articles, events, experience, metrics, and public proof links.
+5. ProofPack enriches GitHub links through its public API and safely attempts other supported public pages; blocked pages remain attached as evidence.
+6. Ask the exact application question and choose a tone.
+7. Choose the application character limit and let Kimi generate an answer using the complete evidence pack.
+8. Review the evidence used, honesty warnings, missing proof, and confidence score.
+9. Copy the answer or reopen it from saved history.
+10. Edit or delete evidence, applications, generations, or the entire account.
 
 ## Kimi integration
 

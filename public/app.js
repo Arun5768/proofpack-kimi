@@ -1,6 +1,57 @@
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-const state = { user: null, quota: null, workspaces: [], currentId: null, workspaceData: null, currentGeneration: null, kimiConfigured: false, model: "moonshotai/kimi-k2.5", editingEvidenceId: null, editingWorkspace: false, thinkingTimer: null };
+const state = { user: null, quota: null, workspaces: [], currentId: null, workspaceData: null, currentGeneration: null, kimiConfigured: false, model: "moonshotai/kimi-k2.5", editingEvidenceId: null, editingWorkspace: false, thinkingTimer: null, demo: false };
+
+const DEMO_WORKSPACE = {
+  workspace: {
+    id: -1,
+    name: "Kimi Ambassador Application",
+    target: "Kimi Ambassador Program",
+    description: "A sample showing how ProofPack turns two concrete pieces of work into a short, checkable answer."
+  },
+  evidence: [
+    {
+      id: -11,
+      type: "project",
+      title: "ProofPack production build",
+      details: "Designed and deployed a complete Cloudflare application with accounts, saved workspaces, source checks, answer history, and account recovery.",
+      metric: "Production deployment completed",
+      proof_url: "https://github.com/Arun5768/proofpack-kimi",
+      source_status: "public_api_read"
+    },
+    {
+      id: -12,
+      type: "event",
+      title: "GitHub Copilot Dev Days",
+      details: "Helped organize a practical GitHub Copilot Dev Days workshop for developers and students, including hands-on activities and participant support.",
+      metric: "97 attendees",
+      proof_url: "https://luma.com/4tmkg6uf",
+      source_status: "manual"
+    }
+  ],
+  generations: [
+    {
+      id: -21,
+      workspace_id: -1,
+      question: "Why would you be a useful Kimi Ambassador?",
+      tone: "clear",
+      answer: "I built and shipped a full Cloudflare app (ProofPack) with accounts, workspaces, source checks, and recovery—showing I can execute end-to-end. I also organized a GitHub Copilot workshop for 97 developers and students, so I know how to engage tech communities practically.",
+      factsUsed: [
+        "E1: Built and deployed ProofPack with accounts, workspaces, source checks, answer history, and recovery",
+        "E2: Helped organize a hands-on GitHub Copilot Dev Days workshop with 97 attendees"
+      ],
+      warnings: ["The event result is based on the organizer's notes; reviewers should check the linked event page."],
+      nextProof: ["Add a public post or photo album showing your role in the workshop."],
+      confidence: 65,
+      model: "moonshotai/kimi-k2.5",
+      created_at: "2026-08-20 20:45:41",
+      createdAt: "2026-08-20 20:45:41"
+    }
+  ],
+  kimiConfigured: true,
+  model: "moonshotai/kimi-k2.5",
+  quota: { used: 0, limit: 10, remaining: 10 }
+};
 
 document.addEventListener("DOMContentLoaded", boot);
 
@@ -20,6 +71,8 @@ function bindEvents() {
   $("#login-form").addEventListener("submit", login);
   $("#register-form").addEventListener("submit", register);
   $("#recover-form").addEventListener("submit", recover);
+  $("#demo-button").addEventListener("click", enterDemo);
+  $("#demo-exit").addEventListener("click", () => leaveDemo("register"));
   $("#logout-button").addEventListener("click", logout);
   $("#menu-button").addEventListener("click", () => toggleSidebar(true));
   $("#side-close").addEventListener("click", () => toggleSidebar(false));
@@ -69,10 +122,46 @@ async function recover(event) {
 function showRecoveryCode(code) { $("#recovery-code").textContent = code; $("#saved-recovery").checked = false; $("#finish-recovery").disabled = true; $("#recovery-dialog").showModal(); }
 
 async function enterApp() {
+  state.demo = false; $("#demo-banner").hidden = true;
   $("#auth-view").hidden = true; $("#app-view").hidden = false;
   $("#profile-name").textContent = state.user.username; $("#avatar").textContent = state.user.username.charAt(0).toUpperCase();
   updateQuota(state.quota); await loadWorkspaces();
   if (state.workspaces.length) await openWorkspace(state.workspaces[0].id); else showHome();
+}
+
+function enterDemo() {
+  Object.assign(state, {
+    demo: true,
+    user: { id: -1, username: "Sample viewer" },
+    quota: DEMO_WORKSPACE.quota,
+    workspaces: [{ id: -1, name: DEMO_WORKSPACE.workspace.name, evidence_count: 2, generation_count: 1 }],
+    currentId: -1,
+    workspaceData: DEMO_WORKSPACE,
+    currentGeneration: DEMO_WORKSPACE.generations[0],
+    kimiConfigured: true,
+    model: DEMO_WORKSPACE.model
+  });
+  $("#auth-view").hidden = true; $("#app-view").hidden = false; $("#demo-banner").hidden = false;
+  $("#profile-name").textContent = "Sample viewer"; $("#avatar").textContent = "S";
+  updateQuota(state.quota); renderWorkspaceList(); renderDemoWorkspace();
+}
+
+function renderDemoWorkspace() {
+  const data = DEMO_WORKSPACE;
+  state.currentId = -1; state.workspaceData = data; state.currentGeneration = data.generations[0];
+  $("#workspace-name").textContent = data.workspace.name; $("#workspace-target").textContent = data.workspace.target.toUpperCase();
+  $("#workspace-description").textContent = data.workspace.description;
+  $("#generate-form textarea").value = data.generations[0].question; $("#question-count").textContent = data.generations[0].question.length;
+  updateKimiStatus(); renderEvidence(); renderGenerations(); renderWorkspaceList(); showView("workspace"); renderAnswer(data.generations[0]);
+  $("#generate-button").innerHTML = "<span>Create an account to use your evidence</span><span>→</span>";
+  $("#workspace-menu").disabled = true; $("#add-evidence-button").disabled = true; $("#new-workspace-button").disabled = true;
+}
+
+function leaveDemo(formName = "login") {
+  Object.assign(state, { demo: false, user: null, workspaces: [], currentId: null, workspaceData: null, currentGeneration: null });
+  $("#demo-banner").hidden = true; $("#workspace-menu").disabled = false; $("#add-evidence-button").disabled = false; $("#new-workspace-button").disabled = false;
+  $("#generate-button").innerHTML = '<span>Write from my real work</span><span class="spark">✦</span>';
+  showAuth(); showAuthForm(formName);
 }
 
 function showAuth() { $("#app-view").hidden = true; $("#auth-view").hidden = false; showAuthForm("login"); }
@@ -81,7 +170,7 @@ function showAuthForm(name) {
   $$(".auth-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.authTab === name));
   $(".auth-tabs").hidden = name === "recover"; clearError("#auth-error");
 }
-async function logout() { try { await api("/api/auth/logout", { method: "POST", body: {} }); } catch {} Object.assign(state, { user: null, workspaces: [], currentId: null, workspaceData: null }); showAuth(); }
+async function logout() { if (state.demo) return leaveDemo("login"); try { await api("/api/auth/logout", { method: "POST", body: {} }); } catch {} Object.assign(state, { user: null, workspaces: [], currentId: null, workspaceData: null }); showAuth(); }
 
 async function loadWorkspaces() {
   try { const data = await api("/api/workspaces"); state.workspaces = data.workspaces; updateQuota(data.quota); renderWorkspaceList(); }
@@ -95,6 +184,7 @@ function renderWorkspaceList() {
 }
 
 function openWorkspaceDialog() {
+  if (state.demo) return leaveDemo("register");
   state.editingWorkspace = false; const form = $("#workspace-form"); form.reset(); clearError("#workspace-error");
   $("#workspace-dialog h2").textContent = "What are you applying for?"; $("#workspace-dialog form button[type='submit']").innerHTML = "Create application <span>→</span>"; $("#workspace-dialog").showModal();
 }
@@ -108,6 +198,7 @@ async function saveWorkspace(event) {
 }
 
 async function openWorkspace(id) {
+  if (state.demo && id === -1) return renderDemoWorkspace();
   try {
     const data = await api(`/api/workspaces/${id}`); state.currentId = id; state.workspaceData = data; state.kimiConfigured = data.kimiConfigured; state.model = data.model; updateQuota(data.quota);
     $("#workspace-name").textContent = data.workspace.name; $("#workspace-target").textContent = data.workspace.target.toUpperCase();
@@ -126,13 +217,15 @@ function renderEvidence() {
   if (!items.length) { $("#evidence-list").innerHTML = `<div class="empty-vault"><span>⌁</span><h3>No work added yet</h3><p>Start with your strongest project, contribution, article, event, or measurable result.</p><button class="button secondary" data-empty-add>＋ Add first item</button></div>`; $("[data-empty-add]").addEventListener("click", () => openEvidenceDialog()); return; }
   $("#evidence-list").innerHTML = items.map((item) => {
     const read = ["public_text_read", "public_api_read"].includes(item.source_status); const label = read ? "Link checked" : item.proof_url ? "Link saved" : "Your notes only";
-    return `<article class="evidence-card"><div class="evidence-top"><span class="type-badge">${escapeHtml(typeLabel(item.type))}</span><span class="source-state ${read ? "read" : ""}">${label}</span></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.details)}</p>${item.metric ? `<span class="metric">${escapeHtml(item.metric)}</span>` : ""}<div class="evidence-footer">${item.proof_url ? `<a href="${escapeHtml(item.proof_url)}" target="_blank" rel="noopener">Open proof ↗</a>` : `<span></span>`}<div class="card-actions"><button class="mini-action" data-edit-evidence="${item.id}">Edit</button><button class="mini-action danger-text" data-delete-evidence="${item.id}">Delete</button></div></div></article>`;
+    const actions = state.demo ? "" : `<div class="card-actions"><button class="mini-action" data-edit-evidence="${item.id}">Edit</button><button class="mini-action danger-text" data-delete-evidence="${item.id}">Delete</button></div>`;
+    return `<article class="evidence-card"><div class="evidence-top"><span class="type-badge">${escapeHtml(typeLabel(item.type))}</span><span class="source-state ${read ? "read" : ""}">${label}</span></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.details)}</p>${item.metric ? `<span class="metric">${escapeHtml(item.metric)}</span>` : ""}<div class="evidence-footer">${item.proof_url ? `<a href="${escapeHtml(item.proof_url)}" target="_blank" rel="noopener">Open proof ↗</a>` : `<span></span>`}${actions}</div></article>`;
   }).join("");
   $$('[data-edit-evidence]').forEach((button) => button.addEventListener("click", () => openEvidenceDialog(Number(button.dataset.editEvidence))));
   $$('[data-delete-evidence]').forEach((button) => button.addEventListener("click", () => removeEvidence(Number(button.dataset.deleteEvidence))));
 }
 
 function openEvidenceDialog(id = null) {
+  if (state.demo) return leaveDemo("register");
   state.editingEvidenceId = id; const form = $("#evidence-form"); form.reset(); clearError("#evidence-error");
   if (id) { const item = state.workspaceData.evidence.find((entry) => entry.id === id); if (!item) return; Object.entries({ type: item.type, title: item.title, details: item.details, metric: item.metric, proofUrl: item.proof_url }).forEach(([name, value]) => { if (form.elements[name]) form.elements[name].value = value || ""; }); }
   $("#evidence-dialog h2").textContent = id ? "Update this item." : "Add something you have actually done.";
@@ -155,6 +248,7 @@ async function removeEvidence(id) {
 
 async function generate(event) {
   event.preventDefault(); clearError("#generate-error");
+  if (state.demo) return leaveDemo("register");
   if (!state.kimiConfigured) return showError("#generate-error", "Kimi is temporarily unavailable. Please try again later.");
   if (state.workspaceData.evidence.length < 2) return showError("#generate-error", "Add at least two evidence items first.");
   if (state.quota.remaining <= 0) return showError("#generate-error", "You have used today’s 10 Kimi answers.");
@@ -186,7 +280,7 @@ function renderGenerations() {
   $$('[data-generation-id]').forEach((card) => { const open = () => openGeneration(Number(card.dataset.generationId)); card.addEventListener("click", open); card.addEventListener("keydown", (event) => event.key === "Enter" && open()); });
 }
 
-async function openGeneration(id) { try { const data = await api(`/api/generations/${id}`); state.currentGeneration = data.generation; renderAnswer(data.generation); $("#answer-result").scrollIntoView({ behavior: "smooth", block: "start" }); } catch (error) { toast(error.message, "error"); } }
+async function openGeneration(id) { if (state.demo) { const item = DEMO_WORKSPACE.generations.find((entry) => entry.id === id); if (item) renderAnswer(item); return; } try { const data = await api(`/api/generations/${id}`); state.currentGeneration = data.generation; renderAnswer(data.generation); $("#answer-result").scrollIntoView({ behavior: "smooth", block: "start" }); } catch (error) { toast(error.message, "error"); } }
 
 function editWorkspace() {
   $("#workspace-actions-dialog").close(); state.editingWorkspace = true; const form = $("#workspace-form"); const w = state.workspaceData.workspace;
