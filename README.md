@@ -10,6 +10,8 @@ ProofPack turns scattered work into application answers that a user can defend. 
 
 Read the implementation and threat-model notes in [WORKFLOW_LAB.md](WORKFLOW_LAB.md). The latest disposable end-to-end test is stored in [lab-results/latest.json](lab-results/latest.json).
 
+For the broader product direction, read the flowchart-led [ProofGraph product and system design](docs/PROOFGRAPH_PRODUCT_DESIGN.md) or download the [six-page visual PDF](output/pdf/ProofGraph_Product_and_System_Design.pdf).
+
 ![Kimi Workflow Lab showing the three inspectable stages](assets/screenshots/04-workflow-lab.png)
 
 *Context Mapper → Deliverable Builder → deterministic code validator. The accompanying [technical article](LINKEDIN_TECHNICAL_ARTICLE.md) explains why the final stage is deliberately not another model call.*
