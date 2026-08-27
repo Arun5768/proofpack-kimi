@@ -4,6 +4,8 @@ ProofPack turns scattered work into application answers that a user can defend. 
 
 **Live app:** [proofpack-kimi-arun.arunchandel1780.workers.dev](https://proofpack-kimi-arun.arunchandel1780.workers.dev)
 
+**Public Kimi benchmark:** [proofpack-kimi-arun.arunchandel1780.workers.dev/benchmark.html](https://proofpack-kimi-arun.arunchandel1780.workers.dev/benchmark.html) — three inspectable cases covering relevant-fact retrieval, conflicting metrics, and prompt injection hidden inside evidence. The latest run passed 15/15 automatic checks; full outputs and limitations are recorded in [BENCHMARK.md](BENCHMARK.md).
+
 The live release has been tested through the full disposable-user flow: registration, workspace creation, evidence storage, Kimi generation, character-limit enforcement, saved history, and account deletion.
 
 ## See the product in 30 seconds
