@@ -6,6 +6,10 @@ ProofPack turns scattered work into application answers that a user can defend. 
 
 **Public Kimi benchmark:** [proofpack-kimi-arun.arunchandel1780.workers.dev/benchmark.html](https://proofpack-kimi-arun.arunchandel1780.workers.dev/benchmark.html) — three inspectable cases covering relevant-fact retrieval, conflicting metrics, and prompt injection hidden inside evidence. The latest run passed 15/15 automatic checks; full outputs and limitations are recorded in [BENCHMARK.md](BENCHMARK.md).
 
+**Kimi Workflow Lab:** [proofpack-kimi-arun.arunchandel1780.workers.dev/lab](https://proofpack-kimi-arun.arunchandel1780.workers.dev/lab) — a transparent two-pass workflow that maps messy context, builds a cited deliverable, validates every source ID in code, saves the run, and exposes the structured JSON, latency, model, and provider.
+
+Read the implementation and threat-model notes in [WORKFLOW_LAB.md](WORKFLOW_LAB.md). The latest disposable end-to-end test is stored in [lab-results/latest.json](lab-results/latest.json).
+
 The live release has been tested through the full disposable-user flow: registration, workspace creation, evidence storage, Kimi generation, character-limit enforcement, saved history, and account deletion.
 
 ## See the product in 30 seconds

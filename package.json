@@ -7,7 +7,8 @@
     "dev": "wrangler dev",
     "check": "wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
-    "benchmark": "python scripts/benchmark.py https://proofpack-kimi-arun.arunchandel1780.workers.dev"
+    "benchmark": "python scripts/benchmark.py https://proofpack-kimi-arun.arunchandel1780.workers.dev",
+    "lab:smoke": "python scripts/lab_smoke.py https://proofpack-kimi-arun.arunchandel1780.workers.dev"
   },
   "devDependencies": {
     "wrangler": "4.120.0"
