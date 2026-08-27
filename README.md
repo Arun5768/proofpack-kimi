@@ -10,6 +10,10 @@ ProofPack turns scattered work into application answers that a user can defend. 
 
 Read the implementation and threat-model notes in [WORKFLOW_LAB.md](WORKFLOW_LAB.md). The latest disposable end-to-end test is stored in [lab-results/latest.json](lab-results/latest.json).
 
+![Kimi Workflow Lab showing the three inspectable stages](assets/screenshots/04-workflow-lab.png)
+
+*Context Mapper → Deliverable Builder → deterministic code validator. The accompanying [technical article](LINKEDIN_TECHNICAL_ARTICLE.md) explains why the final stage is deliberately not another model call.*
+
 The live release has been tested through the full disposable-user flow: registration, workspace creation, evidence storage, Kimi generation, character-limit enforcement, saved history, and account deletion.
 
 ## See the product in 30 seconds
